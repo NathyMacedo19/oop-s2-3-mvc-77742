@@ -1,0 +1,89 @@
+﻿@model List<VgcCollege.Domain.Entities.Assignment>
+@{
+    ViewData["Title"] = "Assignments";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6 fw-bold mb-1">Assignments</h1>
+        <p class="text-muted">Manage assignments and enter grades for your courses</p>
+    </div>
+    <a asp-action="CreateAssignment" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Create New Assignment
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var assignment in Model)
+        {
+            var isOverdue = assignment.DueDate < DateTime.Today;
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header @(isOverdue ? "bg-danger" : "bg-primary") text-white py-3">
+                        <h5 class="mb-0">@assignment.Title</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">
+                            <i class="bi bi-journal-bookmark-fill me-2 text-muted"></i>
+                            <strong>Course:</strong> @assignment.Course?.Name
+                        </p>
+                        <p class="mb-2">
+                            <i class="bi bi-building me-2 text-muted"></i>
+                            <strong>Branch:</strong> @assignment.Course?.Branch?.Name
+                        </p>
+                        <p class="mb-2">
+                            <i class="bi bi-calendar me-2 text-muted"></i>
+                            <strong>Due Date:</strong> @assignment.DueDate.ToString("dd MMM yyyy")
+                        </p>
+                        <p class="mb-3">
+                            <i class="bi bi-trophy me-2 text-muted"></i>
+                            <strong>Max Score:</strong> @assignment.MaxScore
+                        </p>
+                        @if (isOverdue)
+                        {
+                            <div class="alert alert-warning py-1 mb-0">
+                                <i class="bi bi-exclamation-triangle me-1"></i> Overdue
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-3">
+                        <a asp-action="EnterGrades" asp-route-courseId="@assignment.CourseId"
+                           class="btn btn-outline-primary w-100">
+                            <i class="bi bi-pencil-square me-2"></i>Enter Grades
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle me-2"></i> No assignments found for your courses.
+                <br />
+                <a asp-action="CreateAssignment" class="btn btn-sm btn-primary mt-2">
+                    <i class="bi bi-plus-circle me-1"></i> Create your first assignment
+                </a>
+            </div>
+        </div>
+    }
+</div>

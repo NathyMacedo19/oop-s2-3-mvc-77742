@@ -1,0 +1,70 @@
+﻿@model List<VgcCollege.Domain.Entities.Course>
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6 fw-bold mb-1">Courses</h1>
+        <p class="text-muted">Manage academic courses across all branches</p>
+    </div>
+    <a asp-action="CreateCourse" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Add New Course
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Branch</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Students</th>
+                        <th>Faculty</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var course in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@course.Name</td>
+                            <td><i class="bi bi-building me-1"></i>@course.Branch?.Name</td>
+                            <td>@course.StartDate.ToString("dd MMM yyyy")</td>
+                            <td>@course.EndDate.ToString("dd MMM yyyy")</td>
+                            <td><span class="badge bg-secondary">@(course.Enrolments?.Count ?? 0)</span></td>
+                            <td><span class="badge bg-info">@(course.FacultyAssignments?.Count ?? 0)</span></td>
+                            <td class="text-end">
+                                <a asp-action="CourseDetails" asp-route-id="@course.Id"
+                                   class="btn btn-sm btn-outline-info me-1" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="EditCourse" asp-route-id="@course.Id"
+                                   class="btn btn-sm btn-outline-warning me-1" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="DeleteCourse" asp-route-id="@course.Id"
+                                   class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-book fs-1 text-muted"></i>
+        <h5 class="text-muted mt-3">No courses found</h5>
+        <p class="text-muted">Click "Add New Course" to create your first course.</p>
+    </div>
+}

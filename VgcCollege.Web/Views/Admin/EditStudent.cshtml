@@ -1,0 +1,193 @@
+﻿@model VgcCollege.Domain.Entities.StudentProfile
+@{
+    ViewData["Title"] = $"Edit Student - {Model.Name}";
+    var enrolledCourses = ViewBag.EnrolledCourses as List<VgcCollege.Domain.Entities.CourseEnrolment>;
+    var availableCourses = ViewBag.AvailableCourses as List<VgcCollege.Domain.Entities.Course>;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">Edit Student</h1>
+        <p class="text-muted">Update student information and manage course enrollments</p>
+    </div>
+    <a asp-action="Students" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to Students
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <!-- Personal Information Card -->
+    <div class="col-md-5">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="EditStudent" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="IdentityUserId" />
+                    <input type="hidden" asp-for="StudentNumber" />
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold">Full Name</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold">Email Address</label>
+                        <input asp-for="Email" class="form-control" type="email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label fw-semibold">Phone Number</label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DateOfBirth" class="form-label fw-semibold">Date of Birth</label>
+                        <input asp-for="DateOfBirth" class="form-control" type="date" />
+                        <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label fw-semibold">Address</label>
+                        <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Address" class="text-danger small"></span>
+                    </div>
+
+                    <hr />
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-save me-1"></i> Save Personal Information
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Enrollment Card -->
+    <div class="col-md-7">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-journal-bookmark-fill me-2"></i>Course Enrollment Management</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="fw-semibold">Currently Enrolled Courses</h6>
+                @if (enrolledCourses?.Any() == true)
+                {
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Course Name</th>
+                                    <th>Branch</th>
+                                    <th>Enrolled Date</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var enrolment in enrolledCourses)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@enrolment.Course?.Name</td>
+                                        <td>@enrolment.Course?.Branch?.Name</td>
+                                        <td>@enrolment.EnrolDate.ToShortDateString()</td>
+                                        <td>
+                                            <span class="badge @(enrolment.Status == "Active" ? "bg-success" : "bg-secondary")">
+                                                @enrolment.Status
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <form asp-action="RemoveCourseEnrollment" method="post" class="d-inline">
+                                                <input type="hidden" name="enrolmentId" value="@enrolment.Id" />
+                                                <input type="hidden" name="studentId" value="@Model.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                        onclick="return confirm('Remove @enrolment.Course?.Name from this student?')">
+                                                    <i class="bi bi-x-circle"></i> Remove
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle me-2"></i> Student is not enrolled in any courses.
+                    </div>
+                }
+
+                <hr />
+
+                <h6 class="fw-semibold">Enroll in New Course</h6>
+                <form asp-action="AddCourseEnrollment" method="post" class="row g-3">
+                    <input type="hidden" name="studentId" value="@Model.Id" />
+                    <div class="col-md-8">
+                        <select name="courseId" class="form-select" required>
+                            <option value="">-- Select a Course --</option>
+                            @foreach (var course in availableCourses ?? new List<VgcCollege.Domain.Entities.Course>())
+                            {
+                                <option value="@course.Id">@course.Name (@course.Branch?.Name) - @course.StartDate.Year</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-outline-success w-100">
+                            <i class="bi bi-plus-circle me-1"></i> Enroll
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Stats Card -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Academic Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h3 class="mb-0">@(enrolledCourses?.Count ?? 0)</h3>
+                        <small class="text-muted">Active Courses</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="mb-0">@(ViewBag.AssignmentCount ?? 0)</h3>
+                        <small class="text-muted">Assignments</small>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="mb-0">@(ViewBag.ExamCount ?? 0)</h3>
+                        <small class="text-muted">Exams</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

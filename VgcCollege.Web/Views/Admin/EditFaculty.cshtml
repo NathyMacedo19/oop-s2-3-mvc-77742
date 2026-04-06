@@ -1,0 +1,179 @@
+﻿@model VgcCollege.Domain.Entities.FacultyProfile
+@{
+    ViewData["Title"] = $"Edit Faculty - {Model.Name}";
+    var assignedCourses = ViewBag.AssignedCourses as List<VgcCollege.Domain.Entities.Course>;
+    var availableCourses = ViewBag.AvailableCourses as List<VgcCollege.Domain.Entities.Course>;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">Edit Faculty</h1>
+        <p class="text-muted">Update faculty information and manage course assignments</p>
+    </div>
+    <a asp-action="Faculty" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to Faculty
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row">
+    <!-- Personal Information Card -->
+    <div class="col-md-5">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="EditFaculty" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="IdentityUserId" />
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold">Full Name</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold">Email Address</label>
+                        <input asp-for="Email" class="form-control" type="email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label fw-semibold">Phone Number</label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <hr />
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-save me-1"></i> Save Personal Information
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Assignment Card -->
+    <div class="col-md-7">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-journal-bookmark-fill me-2"></i>Course Assignment Management</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="fw-semibold">Currently Assigned Courses</h6>
+                @if (assignedCourses?.Any() == true)
+                {
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Course Name</th>
+                                    <th>Branch</th>
+                                    <th>Start Date</th>
+                                    <th>Students</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var course in assignedCourses)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@course.Name</td>
+                                        <td>@course.Branch?.Name</td>
+                                        <td>@course.StartDate.ToShortDateString()</td>
+                                        <td>
+                                            <span class="badge bg-secondary">@(course.Enrolments?.Count ?? 0) students</span>
+                                        </td>
+                                        <td>
+                                            <form asp-action="RemoveFacultyCourse" method="post" class="d-inline">
+                                                <input type="hidden" name="facultyId" value="@Model.Id" />
+                                                <input type="hidden" name="courseId" value="@course.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                        onclick="return confirm('Remove @course.Name from this faculty member?')">
+                                                    <i class="bi bi-x-circle"></i> Remove
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle me-2"></i> Faculty member is not assigned to any courses.
+                    </div>
+                }
+
+                <hr />
+
+                <h6 class="fw-semibold">Assign to New Course</h6>
+                <form asp-action="AddFacultyCourse" method="post" class="row g-3">
+                    <input type="hidden" name="facultyId" value="@Model.Id" />
+                    <div class="col-md-8">
+                        <select name="courseId" class="form-select" required>
+                            <option value="">-- Select a Course --</option>
+                            @foreach (var course in availableCourses ?? new List<VgcCollege.Domain.Entities.Course>())
+                            {
+                                <option value="@course.Id">@course.Name (@course.Branch?.Name) - @course.StartDate.Year</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-outline-success w-100">
+                            <i class="bi bi-plus-circle me-1"></i> Assign
+                        </button>
+                    </div>
+                </form>
+
+                <div class="alert alert-light mt-3 small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Faculty members can only access courses they are assigned to. Students enrolled in these courses will appear in their dashboard.
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Card -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-people me-2"></i>Teaching Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h3 class="mb-0">@(assignedCourses?.Count ?? 0)</h3>
+                        <small class="text-muted">Assigned Courses</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="mb-0">@(ViewBag.TotalStudents ?? 0)</h3>
+                        <small class="text-muted">Total Students</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

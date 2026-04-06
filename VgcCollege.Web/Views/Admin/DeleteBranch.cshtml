@@ -1,0 +1,55 @@
+﻿@model VgcCollege.Domain.Entities.Branch
+@{
+    ViewData["Title"] = "Delete Branch";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="page-header mb-4">
+            <h1 class="display-6 fw-bold mb-1">Delete Branch</h1>
+            <p class="text-danger">This action cannot be undone</p>
+        </div>
+
+        @if (Model.Courses?.Any() == true)
+        {
+            <div class="alert alert-warning mb-4">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Warning:</strong> This branch has @Model.Courses.Count course(s).
+                You must delete or reassign all courses before deleting this branch.
+            </div>
+        }
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-building text-danger" style="font-size: 3rem;"></i>
+                    <h4 class="mt-2">Are you sure?</h4>
+                    <p class="text-muted">You are about to delete <strong>@Model.Name</strong></p>
+                </div>
+
+                <dl class="row mb-4">
+                    <dt class="col-sm-4">Branch Name</dt>
+                    <dd class="col-sm-8">@Model.Name</dd>
+
+                    <dt class="col-sm-4">Address</dt>
+                    <dd class="col-sm-8">@Model.Address</dd>
+
+                    <dt class="col-sm-4">Courses</dt>
+                    <dd class="col-sm-8">@(Model.Courses?.Count ?? 0)</dd>
+                </dl>
+
+                <form asp-action="DeleteBranch">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="submit" class="btn btn-danger px-4" @(Model.Courses?.Any() == true ? "disabled" : "")>
+                            <i class="bi bi-trash me-2"></i>Yes, Delete
+                        </button>
+                        <a asp-action="Branches" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,76 @@
+﻿@model List<VgcCollege.Domain.Entities.StudentProfile>
+@{
+    ViewData["Title"] = "Students";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6 fw-bold mb-1">Students</h1>
+        <p class="text-muted">Manage student records and enrollments</p>
+    </div>
+    <a asp-action="CreateStudent" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Add New Student
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var student in Model)
+                    {
+                        <tr>
+                            <td><span class="badge bg-secondary">@student.StudentNumber</span></td>
+                            <td class="fw-semibold">@student.Name</td>
+                            <td>@student.Email</td>
+                            <td>@student.Phone</td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td class="text-end">
+                                <a asp-action="StudentDetails" asp-route-id="@student.Id"
+                                   class="btn btn-sm btn-outline-info me-1" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="EditStudent" asp-route-id="@student.Id"
+                                   class="btn btn-sm btn-outline-warning me-1" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="DeleteStudent" asp-route-id="@student.Id"
+                                   class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-people fs-1 text-muted"></i>
+        <h5 class="text-muted mt-3">No students found</h5>
+        <p class="text-muted">Click "Add New Student" to enroll your first student.</p>
+    </div>
+}

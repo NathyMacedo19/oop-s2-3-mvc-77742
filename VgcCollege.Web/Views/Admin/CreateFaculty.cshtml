@@ -1,0 +1,63 @@
+﻿@model VgcCollege.Domain.Entities.FacultyProfile
+@{
+    ViewData["Title"] = "Create Faculty";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="page-header mb-4">
+            <h1 class="display-6 fw-bold mb-1">Create Faculty</h1>
+            <p class="text-muted">Add a new faculty member to the system</p>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="CreateFaculty">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Name" class="form-label fw-semibold">Full Name</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Phone" class="form-label fw-semibold">Phone Number</label>
+                            <input asp-for="Phone" class="form-control" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Email (Login)</label>
+                            <input type="email" name="email" class="form-control" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Password</label>
+                            <input type="password" name="password" class="form-control" required />
+                            <small class="text-muted">Must contain uppercase, number, and special character</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Assign to Courses</label>
+                        <select name="selectedCourses" class="form-select" multiple size="5" asp-items="ViewBag.Courses"></select>
+                        <small class="text-muted">Hold Ctrl to select multiple courses</small>
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-2"></i>Create Faculty
+                        </button>
+                        <a asp-action="Faculty" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

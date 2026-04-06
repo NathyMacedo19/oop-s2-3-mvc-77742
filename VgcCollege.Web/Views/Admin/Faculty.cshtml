@@ -1,0 +1,91 @@
+﻿@model List<VgcCollege.Domain.Entities.FacultyProfile>
+@{
+    ViewData["Title"] = "Faculty";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6 fw-bold mb-1">Faculty</h1>
+        <p class="text-muted">Manage teaching staff and course assignments</p>
+    </div>
+    <a asp-action="CreateFaculty" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Add New Faculty
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    @foreach (var faculty in Model)
+    {
+        var courseCount = faculty.CourseAssignments?.Count ?? 0;
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-person-badge text-info fs-4"></i>
+                        </div>
+                        <span class="badge @(courseCount > 0 ? "bg-success" : "bg-secondary")">
+                            @courseCount Course(s)
+                        </span>
+                    </div>
+                    <h5 class="card-title fw-bold">@faculty.Name</h5>
+                    <p class="card-text text-muted small mb-1">
+                        <i class="bi bi-envelope me-1"></i> @faculty.Email
+                    </p>
+                    <p class="card-text text-muted small">
+                        <i class="bi bi-telephone me-1"></i> @faculty.Phone
+                    </p>
+                    @if (faculty.CourseAssignments?.Any() == true)
+                    {
+                        <div class="mt-2">
+                            <small class="text-muted">Assigned to:</small>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                @foreach (var assignment in faculty.CourseAssignments.Take(3))
+                                {
+                                    <span class="badge bg-light text-dark">@assignment.Course?.Name</span>
+                                }
+                                @if (faculty.CourseAssignments.Count > 3)
+                                {
+                                    <span class="badge bg-secondary">+@(faculty.CourseAssignments.Count - 3) more</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer bg-white border-0 pb-3">
+                    <div class="btn-group w-100" role="group">
+                        <a asp-action="FacultyDetails" asp-route-id="@faculty.Id"
+                           class="btn btn-outline-info">
+                            <i class="bi bi-eye me-1"></i> View
+                        </a>
+                        <a asp-action="EditFaculty" asp-route-id="@faculty.Id"
+                           class="btn btn-outline-warning">
+                            <i class="bi bi-pencil me-1"></i> Edit
+                        </a>
+                        <a asp-action="DeleteFaculty" asp-route-id="@faculty.Id"
+                           class="btn btn-outline-danger">
+                            <i class="bi bi-trash me-1"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-person-badge fs-1 text-muted"></i>
+        <h5 class="text-muted mt-3">No faculty members found</h5>
+        <p class="text-muted">Click "Add New Faculty" to add your first instructor.</p>
+    </div>
+}

@@ -1,0 +1,58 @@
+﻿@model VgcCollege.Domain.Entities.Course
+@{
+    ViewData["Title"] = "Edit Course";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="page-header mb-4">
+            <h1 class="display-6 fw-bold mb-1">Edit Course</h1>
+            <p class="text-muted">Update course information</p>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="EditCourse">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold">Course Name</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BranchId" class="form-label fw-semibold">Branch</label>
+                        <select asp-for="BranchId" class="form-select" asp-items="ViewBag.Branches"></select>
+                        <span asp-validation-for="BranchId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="StartDate" class="form-label fw-semibold">Start Date</label>
+                            <input asp-for="StartDate" class="form-control" type="date" />
+                            <span asp-validation-for="StartDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="EndDate" class="form-label fw-semibold">End Date</label>
+                            <input asp-for="EndDate" class="form-control" type="date" />
+                            <span asp-validation-for="EndDate" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-2"></i>Save Changes
+                        </button>
+                        <a asp-action="Courses" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to VgcCollege</h1>
+    <p class="lead">Academic Management System — Acme Global College</p>
+    <hr />
+    
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle me-2"></i>
+            Welcome back, @User.Identity.Name!
+        </div>
+        
+        @if (User.IsInRole("Student"))
+        {
+            <a asp-controller="Students" asp-action="Dashboard" class="btn btn-primary btn-lg">
+                <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+            </a>
+        }
+        else if (User.IsInRole("Faculty"))
+        {
+            <a asp-controller="Faculty" asp-action="Dashboard" class="btn btn-primary btn-lg">
+                <i class="bi bi-speedometer2 me-2"></i>Go to Faculty Dashboard
+            </a>
+        }
+        else if (User.IsInRole("Admin"))
+        {
+            <a asp-controller="Admin" asp-action="Branches" class="btn btn-primary btn-lg">
+                <i class="bi bi-shield-lock me-2"></i>Go to Admin Panel
+            </a>
+        }
+    }
+    else
+    {
+        <div class="mt-4">
+            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg me-2">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login
+            </a>
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-person-plus me-2"></i>Register
+            </a>
+        </div>
+    }
+</div>

@@ -1,0 +1,122 @@
+﻿@model VgcCollege.Domain.Entities.Branch
+@{
+    ViewData["Title"] = $"Branch Details - {Model.Name}";
+}
+
+<style>
+    .course-card {
+        transition: all 0.2s ease-in-out;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+
+    .stat-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 8px 16px;
+        border-radius: 12px;
+        color: white;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6 fw-bold mb-1">@Model.Name</h1>
+        <p class="text-muted">Branch / Campus Details</p>
+    </div>
+    <div>
+        <a asp-action="EditBranch" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+            <i class="bi bi-pencil me-2"></i>Edit Branch
+        </a>
+        <a asp-action="Branches" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Branches
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Branch Information Card -->
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-primary text-white py-3 border-0">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Branch Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block">
+                        <i class="bi bi-buildings text-primary fs-1"></i>
+                    </div>
+                </div>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Name</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.Name</dd>
+                    <dt class="col-sm-4">Address</dt>
+                    <dd class="col-sm-8 text-muted">@Model.Address</dd>
+                    <dt class="col-sm-4">Total Courses</dt>
+                    <dd class="col-sm-8">
+                        <span class="stat-badge">@(Model.Courses?.Count ?? 0) Courses</span>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses at Branch -->
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white py-3 border-0">
+                <h5 class="mb-0"><i class="bi bi-journal-bookmark-fill me-2"></i>Courses at @Model.Name</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Courses?.Any() == true)
+                {
+                    <div class="row g-3">
+                        @foreach (var course in Model.Courses.OrderBy(c => c.Name))
+                        {
+                            <div class="col-md-6">
+                                <div class="course-card card shadow-sm border-0 h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0">@course.Name</h6>
+                                            <span class="badge bg-secondary rounded-pill">@(course.Enrolments?.Count ?? 0) students</span>
+                                        </div>
+                                        <div class="d-flex gap-2 mb-3">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <i class="bi bi-calendar-check text-success small"></i>
+                                                <small class="text-muted">@course.StartDate.ToString("dd MMM yyyy")</small>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <i class="bi bi-calendar-x text-danger small"></i>
+                                                <small class="text-muted">@course.EndDate.ToString("dd MMM yyyy")</small>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <span class="badge bg-info">@(course.FacultyAssignments?.Count ?? 0) Faculty</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-white border-0 pb-3">
+                                        <a asp-action="CourseDetails" asp-route-id="@course.Id" class="btn btn-sm btn-outline-primary w-100">
+                                            View Details <i class="bi bi-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-journal-bookmark-fill text-muted fs-1"></i>
+                        <h5 class="text-muted mt-2">No courses at this branch</h5>
+                        <p class="text-muted small">Click the button above to create your first course.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

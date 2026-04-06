@@ -1,0 +1,212 @@
+﻿@{
+    ViewData["Title"] = "Enter Grades";
+    var course = ViewBag.Course as VgcCollege.Domain.Entities.Course;
+    var students = ViewBag.Students as List<VgcCollege.Domain.Entities.StudentProfile>;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">Enter Grades</h1>
+        <p class="text-muted">@course?.Name — @course?.Branch?.Name</p>
+    </div>
+    <a asp-action="Assignments" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to Assignments
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header table-dark text-dark">
+                <h5 class="mb-0"><i class="bi bi-journal-bookmark-fill me-2"></i>Assignments</h5>
+            </div>
+            <div class="card-body">
+                @if (course?.Assignments?.Any() == true)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student</th>
+                                    @foreach (var assignment in course.Assignments)
+                                    {
+                                        <th class="text-center">@assignment.Title<br /><small>Max: @assignment.MaxScore</small></th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var student in students ?? new List<VgcCollege.Domain.Entities.StudentProfile>())
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@student.Name</td>
+                                        @foreach (var assignment in course.Assignments)
+                                        {
+                                            var existingResult = assignment.Results?.FirstOrDefault(r => r.StudentProfileId == student.Id);
+                                            <td class="text-center">
+                                                <input type="number" 
+                                                       class="form-control form-control-sm grade-input" 
+                                                       style="width: 80px; display: inline-block;"
+                                                       data-assignment-id="@assignment.Id"
+                                                       data-student-id="@student.Id"
+                                                       value="@(existingResult?.Score ?? 0)"
+                                                       min="0"
+                                                       max="@assignment.MaxScore" />
+                                                <button class="btn btn-sm btn-outline-primary save-grade mt-1"
+                                                        data-assignment-id="@assignment.Id"
+                                                        data-student-id="@student.Id">
+                                                    <i class="bi bi-save"></i> Save
+                                                </button>
+                                                <div class="feedback-container mt-1">
+                                                    <textarea class="form-control form-control-sm feedback-input" 
+                                                              rows="1" 
+                                                              placeholder="Feedback..."
+                                                              data-assignment-id="@assignment.Id"
+                                                              data-student-id="@student.Id">@(existingResult?.Feedback ?? "")</textarea>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle me-2"></i> No assignments found for this course.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-header table-dark text-dark">
+                <h5 class="mb-0"><i class="bi bi-trophy me-2"></i>Exams</h5>
+            </div>
+            <div class="card-body">
+                @if (course?.Exams?.Any() == true)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student</th>
+                                    @foreach (var exam in course.Exams)
+                                    {
+                                        <th class="text-center">@exam.Title<br /><small>Max: @exam.MaxScore</small></th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var student in students ?? new List<VgcCollege.Domain.Entities.StudentProfile>())
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@student.Name</td>
+                                        @foreach (var exam in course.Exams)
+                                        {
+                                            var existingResult = exam.Results?.FirstOrDefault(r => r.StudentProfileId == student.Id);
+                                            <td class="text-center">
+                                                <input type="number" 
+                                                       class="form-control form-control-sm exam-grade-input" 
+                                                       style="width: 80px; display: inline-block;"
+                                                       data-exam-id="@exam.Id"
+                                                       data-student-id="@student.Id"
+                                                       value="@(existingResult?.Score ?? 0)"
+                                                       min="0"
+                                                       max="@exam.MaxScore" />
+                                                <select class="form-select form-select-sm exam-grade-select" 
+                                                        style="width: 60px; display: inline-block;"
+                                                        data-exam-id="@exam.Id"
+                                                        data-student-id="@student.Id">
+                                                    <option value="">Grade</option>
+                                                    <option value="A" selected="@(existingResult?.Grade == "A")">A</option>
+                                                    <option value="B" selected="@(existingResult?.Grade == "B")">B</option>
+                                                    <option value="C" selected="@(existingResult?.Grade == "C")">C</option>
+                                                    <option value="D" selected="@(existingResult?.Grade == "D")">D</option>
+                                                    <option value="F" selected="@(existingResult?.Grade == "F")">F</option>
+                                                </select>
+                                                <button class="btn btn-sm btn-outline-primary save-exam-grade mt-1 d-block mx-auto"
+                                                        data-exam-id="@exam.Id"
+                                                        data-student-id="@student.Id">
+                                                    <i class="bi bi-save"></i> Save
+                                                </button>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle me-2"></i> No exams found for this course.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Save Assignment Grade
+        document.querySelectorAll('.save-grade').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const assignmentId = this.dataset.assignmentId;
+                const studentId = this.dataset.studentId;
+                const input = document.querySelector(`.grade-input[data-assignment-id="${assignmentId}"][data-student-id="${studentId}"]`);
+                const feedback = document.querySelector(`.feedback-input[data-assignment-id="${assignmentId}"][data-student-id="${studentId}"]`);
+                const score = input.value;
+                
+                const response = await fetch('/Faculty/SaveAssignmentGrade', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: `assignmentId=${assignmentId}&studentId=${studentId}&score=${score}&feedback=${feedback ? feedback.value : ''}`
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    btn.innerHTML = '<i class="bi bi-check"></i> Saved';
+                    setTimeout(() => btn.innerHTML = '<i class="bi bi-save"></i> Save', 2000);
+                } else {
+                    alert('Error saving grade: ' + result.error);
+                }
+            });
+        });
+        
+        // Save Exam Grade
+        document.querySelectorAll('.save-exam-grade').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const examId = this.dataset.examId;
+                const studentId = this.dataset.studentId;
+                const input = document.querySelector(`.exam-grade-input[data-exam-id="${examId}"][data-student-id="${studentId}"]`);
+                const select = document.querySelector(`.exam-grade-select[data-exam-id="${examId}"][data-student-id="${studentId}"]`);
+                const score = input.value;
+                const grade = select.value;
+                
+                const response = await fetch('/Faculty/SaveExamGrade', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: `examId=${examId}&studentId=${studentId}&score=${score}&grade=${grade}`
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    btn.innerHTML = '<i class="bi bi-check"></i> Saved';
+                    setTimeout(() => btn.innerHTML = '<i class="bi bi-save"></i> Save', 2000);
+                } else {
+                    alert('Error saving grade: ' + result.error);
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,96 @@
+﻿@{
+    ViewData["Title"] = "Student Dashboard";
+    var student = ViewBag.Student as VgcCollege.Domain.Entities.StudentProfile;
+    var enrolments = ViewBag.Enrolments as List<VgcCollege.Domain.Entities.CourseEnrolment>;
+}
+
+<div class="page-header">
+    <h1 class="display-5 fw-bold mb-2">Welcome back, @student?.Name!</h1>
+    <p class="text-muted">Here's your academic progress at a glance.</p>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 mb-1">Active Courses</h6>
+                        <h2 class="display-6 fw-bold mb-0">@(enrolments?.Count ?? 0)</h2>
+                    </div>
+                    <i class="bi bi-book fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 mb-1">Assignments</h6>
+                        <h2 class="display-6 fw-bold mb-0">@(ViewBag.AssignmentCount ?? 0)</h2>
+                    </div>
+                    <i class="bi bi-pencil-square fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 mb-1">Exams</h6>
+                        <h2 class="display-6 fw-bold mb-0">@(ViewBag.ExamCount ?? 0)</h2>
+                    </div>
+                    <i class="bi bi-trophy fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 mb-1">Average Grade</h6>
+                        <h2 class="display-6 fw-bold mb-0">@(ViewBag.AverageScore ?? 0)%</h2>
+                    </div>
+                    <i class="bi bi-graph-up fs-1 text-white-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white border-0 pt-3">
+        <h5 class="mb-0 fw-bold"><i class="bi bi-journal-bookmark-fill me-2"></i>My Courses</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            @foreach (var enrolment in enrolments ?? new List<VgcCollege.Domain.Entities.CourseEnrolment>())
+            {
+                var attendancePercent = enrolment.AttendanceRecords?.Any() == true
+                ? (enrolment.AttendanceRecords.Count(a => a.Present) * 100 / enrolment.AttendanceRecords.Count)
+                : 0;
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0 fw-bold">@enrolment.Course?.Name</h6>
+                        <span class="badge @(attendancePercent >= 75 ? "bg-success" : attendancePercent >= 50 ? "bg-warning" : "bg-danger")">
+                            @attendancePercent% Attendance
+                        </span>
+                    </div>
+                    <p class="text-muted small mb-2">
+                        <i class="bi bi-building me-1"></i> @enrolment.Course?.Branch?.Name
+                    </p>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar @(attendancePercent >= 75 ? "bg-success" : attendancePercent >= 50 ? "bg-warning" : "bg-danger")"
+                             style="width: @attendancePercent%"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

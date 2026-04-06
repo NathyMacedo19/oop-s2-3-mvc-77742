@@ -1,0 +1,205 @@
+﻿@model VgcCollege.Domain.Entities.StudentProfile
+@{
+    ViewData["Title"] = $"Student Details - {Model.Name}";
+    var enrolments = ViewBag.Enrolments as List<VgcCollege.Domain.Entities.CourseEnrolment>;
+    var assignmentResults = ViewBag.AssignmentResults as List<VgcCollege.Domain.Entities.AssignmentResult>;
+    var examResults = ViewBag.ExamResults as List<VgcCollege.Domain.Entities.ExamResult>;
+    var attendance = ViewBag.Attendance as List<VgcCollege.Domain.Entities.AttendanceRecord>;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">@Model.Name</h1>
+        <p class="text-muted">Student Details — @Model.StudentNumber</p>
+    </div>
+    <a asp-action="MyStudents" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to Students
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Student Info Card -->
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header table-dark text-dark">
+                <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Student Number</dt>
+                    <dd class="col-sm-7">@Model.StudentNumber</dd>
+                    
+                    <dt class="col-sm-5">Email</dt>
+                    <dd class="col-sm-7">@Model.Email</dd>
+                    
+                    <dt class="col-sm-5">Phone</dt>
+                    <dd class="col-sm-7">@Model.Phone</dd>
+                    
+                    <dt class="col-sm-5">Date of Birth</dt>
+                    <dd class="col-sm-7">@Model.DateOfBirth.ToShortDateString()</dd>
+                    
+                    <dt class="col-sm-5">Address</dt>
+                    <dd class="col-sm-7">@Model.Address</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="col-md-8">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card shadow-sm bg-primary text-white">
+                    <div class="card-body">
+                        <p class="mb-0 small">Active Courses</p>
+                        <h2 class="mb-0">@(enrolments?.Count ?? 0)</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm bg-success text-white">
+                    <div class="card-body">
+                        <p class="mb-0 small">Assignments Graded</p>
+                        <h2 class="mb-0">@(assignmentResults?.Count ?? 0)</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm bg-info text-white">
+                    <div class="card-body">
+                        <p class="mb-0 small">Overall Attendance</p>
+                        @{
+                            var attendancePercent = attendance?.Any() == true 
+                                ? (attendance.Count(a => a.Present) * 100 / attendance.Count) 
+                                : 0;
+                        }
+                        <h2 class="mb-0">@attendancePercent%</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Courses and Results -->
+<div class="card shadow-sm mt-4">
+    <div class="card-header table-dark text-dark">
+        <h5 class="mb-0"><i class="bi bi-journal-bookmark-fill me-2"></i>Enrolled Courses</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Course</th>
+                    <th>Branch</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (enrolments?.Any() == true)
+                {
+                    @foreach (var enrolment in enrolments)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@enrolment.Course?.Name</td>
+                            <td>@enrolment.Course?.Branch?.Name</td>
+                            <td>@enrolment.Course?.StartDate.ToShortDateString()</td>
+                            <td>@enrolment.Course?.EndDate.ToShortDateString()</td>
+                            <td><span class="badge bg-success">@enrolment.Status</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-3">No active enrolments</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Assignment Results -->
+<div class="card shadow-sm mt-4">
+    <div class="card-header table-dark text-dark">
+        <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Assignment Results</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Course</th>
+                    <th>Assignment</th>
+                    <th>Score</th>
+                    <th>Feedback</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (assignmentResults?.Any() == true)
+                {
+                    @foreach (var result in assignmentResults)
+                    {
+                        <tr>
+                            <td>@result.Assignment?.Course?.Name</td>
+                            <td>@result.Assignment?.Title</td>
+                            <td>
+                                <span class="badge @(result.Score >= 70 ? "bg-success" : result.Score >= 50 ? "bg-warning" : "bg-danger")">
+                                    @result.Score / @result.Assignment?.MaxScore
+                                </span>
+                            </td>
+                            <td>@result.Feedback</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-3">No assignment results recorded</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Exam Results -->
+<div class="card shadow-sm mt-4">
+    <div class="card-header table-dark text-dark">
+        <h5 class="mb-0"><i class="bi bi-trophy me-2"></i>Exam Results</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Course</th>
+                    <th>Exam</th>
+                    <th>Score</th>
+                    <th>Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (examResults?.Any() == true)
+                {
+                    @foreach (var result in examResults)
+                    {
+                        <tr>
+                            <td>@result.Exam?.Course?.Name</td>
+                            <td>@result.Exam?.Title</td>
+                            <td>@result.Score / @result.Exam?.MaxScore</td>
+                            <td><span class="badge bg-info">@result.Grade</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-3">No exam results recorded</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

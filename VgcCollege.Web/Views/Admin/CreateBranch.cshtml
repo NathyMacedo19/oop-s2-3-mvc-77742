@@ -1,0 +1,57 @@
+﻿@model VgcCollege.Domain.Entities.Branch
+@{
+    ViewData["Title"] = "Create Branch";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="page-header mb-4">
+            <h1 class="display-6 fw-bold mb-1">Create Branch</h1>
+            <p class="text-muted">Add a new college campus or location</p>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="CreateBranch">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold">Branch Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="bi bi-buildings text-muted"></i>
+                            </span>
+                            <input asp-for="Name" class="form-control border-start-0"
+                                   placeholder="e.g., Dublin Campus, Cork Campus..." />
+                        </div>
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                        <div class="form-text">The official name of the campus or location.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label fw-semibold">Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="bi bi-geo-alt text-muted"></i>
+                            </span>
+                            <textarea asp-for="Address" class="form-control border-start-0" rows="2"
+                                      placeholder="Street address, city, postal code..."></textarea>
+                        </div>
+                        <span asp-validation-for="Address" class="text-danger small"></span>
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-2"></i>Create Branch
+                        </button>
+                        <a asp-action="Branches" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,96 @@
+﻿@{
+    ViewData["Title"] = "My Results";
+    var assignmentResults = ViewBag.AssignmentResults as List<VgcCollege.Domain.Entities.AssignmentResult>;
+    var examResults = ViewBag.ExamResults as List<VgcCollege.Domain.Entities.ExamResult>;
+}
+
+<div class="page-header mb-4">
+    <h1 class="display-6 fw-bold mb-1">My Results</h1>
+    <p class="text-muted">Your academic performance</p>
+</div>
+
+<!-- Assignment Results -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white py-3">
+        <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Assignment Results</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Course</th>
+                    <th>Assignment</th>
+                    <th>Score</th>
+                    <th>Feedback</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (assignmentResults?.Any() == true)
+                {
+                    @foreach (var result in assignmentResults)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@result.Assignment?.Course?.Name</td>
+                            <td>@result.Assignment?.Title</td>
+                            <td>
+                                <span class="badge @(result.Score >= 70 ? "bg-success" : result.Score >= 50 ? "bg-warning" : "bg-danger")">
+                                    @result.Score / @result.Assignment?.MaxScore
+                                </span>
+                            </td>
+                            <td>@result.Feedback</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-info-circle me-1"></i> No assignment results available.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Exam Results -->
+<div class="card shadow-sm">
+    <div class="card-header bg-warning text-dark py-3">
+        <h5 class="mb-0"><i class="bi bi-trophy me-2"></i>Exam Results</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Course</th>
+                    <th>Exam</th>
+                    <th>Score</th>
+                    <th>Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (examResults?.Any() == true)
+                {
+                    @foreach (var result in examResults)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@result.Exam?.Course?.Name</td>
+                            <td>@result.Exam?.Title</td>
+                            <td>@result.Score / @result.Exam?.MaxScore</td>
+                            <td><span class="badge bg-info">@result.Grade</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-lock me-1"></i> No exam results available yet (results may not be released).
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

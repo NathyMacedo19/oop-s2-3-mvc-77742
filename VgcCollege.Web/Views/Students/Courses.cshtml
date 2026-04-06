@@ -1,0 +1,66 @@
+﻿@model List<VgcCollege.Domain.Entities.CourseEnrolment>
+@{
+    ViewData["Title"] = "My Courses";
+}
+
+<div class="page-header mb-4">
+    <h1 class="display-6 fw-bold mb-1">My Courses</h1>
+    <p class="text-muted">Your enrolled courses</p>
+</div>
+
+<div class="row g-4">
+    @foreach (var enrolment in Model)
+    {
+        var attendancePercent = enrolment.AttendanceRecords?.Any() == true
+        ? (enrolment.AttendanceRecords.Count(a => a.Present) * 100 / enrolment.AttendanceRecords.Count)
+        : 0;
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header @(attendancePercent >= 75 ? "bg-success" : attendancePercent >= 50 ? "bg-warning" : "bg-danger") text-white py-3">
+                    <h5 class="mb-0">@enrolment.Course?.Name</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <i class="bi bi-building me-2 text-muted"></i>
+                        <strong>Branch:</strong> @enrolment.Course?.Branch?.Name
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-calendar me-2 text-muted"></i>
+                        <strong>Duration:</strong> @enrolment.Course?.StartDate.ToString("dd MMM yyyy") - @enrolment.Course?.EndDate.ToString("dd MMM yyyy")
+                    </p>
+                    <p class="mb-3">
+                        <i class="bi bi-check-circle me-2 text-muted"></i>
+                        <strong>Status:</strong> <span class="badge bg-success">@enrolment.Status</span>
+                    </p>
+
+                    <label class="form-label small text-muted">Attendance Rate</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="progress flex-grow-1" style="height: 8px;">
+                            <div class="progress-bar @(attendancePercent >= 75 ? "bg-success" : attendancePercent >= 50 ? "bg-warning" : "bg-danger")"
+                                 style="width: @attendancePercent%">
+                            </div>
+                        </div>
+                        <span class="fw-bold @(attendancePercent >= 75 ? "text-success" : attendancePercent >= 50 ? "text-warning" : "text-danger")">
+                            @attendancePercent%
+                        </span>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 pb-3">
+                    <a asp-action="Results" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-trophy me-2"></i>View Results
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-book fs-1 text-muted"></i>
+        <h5 class="text-muted mt-3">No enrolled courses</h5>
+        <p class="text-muted">You are not enrolled in any courses yet.</p>
+    </div>
+}

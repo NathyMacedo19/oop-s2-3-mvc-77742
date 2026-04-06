@@ -1,0 +1,183 @@
+﻿@{
+    ViewData["Title"] = "Mark Attendance";
+    var course = ViewBag.Course as VgcCollege.Domain.Entities.Course;
+    var enrolments = ViewBag.Enrolments as List<VgcCollege.Domain.Entities.CourseEnrolment>;
+    var currentWeek = ViewBag.CurrentWeek as int? ?? 1;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="display-6 fw-bold mb-1">Mark Attendance</h1>
+        <p class="text-muted">@course?.Name — Week @currentWeek</p>
+    </div>
+    <div>
+        <a asp-action="MyStudents" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Students
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Attendance Form -->
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Attendance for Week @currentWeek</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="SaveAttendance" method="post">
+                    <input type="hidden" name="courseId" value="@course?.Id" />
+                    <input type="hidden" name="weekNumber" value="@currentWeek" />
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Student Number</th>
+                                    <th>Present</th>
+                                    <th>Previous Attendance</th>
+                            </thead>
+                            <tbody>
+                                @if (enrolments != null && enrolments.Any())
+                                {
+                                    @foreach (var enrolment in enrolments)
+                                    {
+                                        var existingRecord = enrolment.AttendanceRecords?.FirstOrDefault(a => a.WeekNumber == currentWeek);
+                                        var previousWeeks = enrolment.AttendanceRecords?.Where(a => a.WeekNumber < currentWeek).Count() ?? 0;
+                                        var previousPresent = enrolment.AttendanceRecords?.Where(a => a.WeekNumber < currentWeek && a.Present).Count() ?? 0;
+                                        var previousPercent = previousWeeks > 0 ? (previousPresent * 100 / previousWeeks) : 0;
+
+                                        <tr>
+                                            <td class="fw-semibold">@enrolment.StudentProfile?.Name</td>
+                                            <td>@enrolment.StudentProfile?.StudentNumber</td>
+                                            <td>
+                                                <div class="form-check">
+                                                    <input type="checkbox"
+                                                           name="attendance_@enrolment.StudentProfileId"
+                                                           class="form-check-input"
+                                                           value="true"
+                                                           id="attendance_@enrolment.StudentProfileId"
+                                                           @(existingRecord?.Present == true ? "checked" : "") />
+                                                    <label class="form-check-label" for="attendance_@enrolment.StudentProfileId">
+                                                        Present
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (previousWeeks > 0)
+                                                {
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="progress" style="width: 60px; height: 6px;">
+                                                            <div class="progress-bar @(previousPercent >= 75 ? "bg-success" : previousPercent >= 50 ? "bg-warning" : "bg-danger")"
+                                                                 style="width: @previousPercent%"></div>
+                                                        </div>
+                                                        <small>@previousPresent/@previousWeeks</small>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No previous records</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <i class="bi bi-info-circle me-1"></i> No students enrolled in this course.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (enrolments != null && enrolments.Any())
+                    {
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-2"></i>Save Attendance
+                            </button>
+                            <a asp-action="MyStudents" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Week Selection Sidebar -->
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white py-3">
+                <h5 class="mb-0"><i class="bi bi-calendar-week me-2"></i>Select Week</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    @for (int week = 1; week <= 12; week++)
+                    {
+                        <a asp-action="MarkAttendance" asp-route-id="@course?.Id" asp-route-week="@week"
+                           class="btn @(week == currentWeek ? "btn-primary" : "btn-outline-secondary")">
+                            Week @week
+                            @if (week == currentWeek)
+                            {
+                                <i class="bi bi-check-circle ms-2"></i>
+                            }
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-success text-white py-3">
+                <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Class Summary</h5>
+            </div>
+            <div class="card-body">
+                @if (enrolments != null && enrolments.Any())
+                {
+                    var totalStudents = enrolments.Count;
+                    var presentCount = enrolments.Count(e => e.AttendanceRecords?.Any(a => a.WeekNumber == currentWeek && a.Present) == true);
+                    var attendanceRate = totalStudents > 0 ? (presentCount * 100 / totalStudents) : 0;
+
+                    <div class="text-center">
+                        <h2 class="display-4 fw-bold text-success">@attendanceRate%</h2>
+                        <p class="text-muted">Attendance Rate This Week</p>
+                        <div class="progress mb-3" style="height: 10px;">
+                            <div class="progress-bar bg-success" style="width: @attendanceRate%"></div>
+                        </div>
+                        <p class="mb-0">
+                            <span class="fw-bold">@presentCount</span> out of <span class="fw-bold">@totalStudents</span> students present
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">No students enrolled</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

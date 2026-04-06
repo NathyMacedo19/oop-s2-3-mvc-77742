@@ -1,0 +1,80 @@
+﻿@model List<VgcCollege.Domain.Entities.AttendanceRecord>
+@{
+    ViewData["Title"] = "My Attendance";
+    var enrolments = ViewBag.Enrolments as List<VgcCollege.Domain.Entities.CourseEnrolment>;
+}
+
+<div class="page-header mb-4">
+    <h1 class="display-6 fw-bold mb-1">My Attendance</h1>
+    <p class="text-muted">Track your attendance across all courses</p>
+</div>
+
+<div class="row g-4">
+    @foreach (var enrolment in enrolments ?? new List<VgcCollege.Domain.Entities.CourseEnrolment>())
+    {
+        var attendanceRecords = enrolment.AttendanceRecords?.ToList() ?? new List<VgcCollege.Domain.Entities.AttendanceRecord>();
+        var presentCount = attendanceRecords.Count(a => a.Present);
+        var totalCount = attendanceRecords.Count;
+        var percentage = totalCount > 0 ? (presentCount * 100 / totalCount) : 0;
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header @(percentage >= 75 ? "bg-success" : percentage >= 50 ? "bg-warning" : "bg-danger") text-white py-3">
+                    <h5 class="mb-0">@enrolment.Course?.Name</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h2 class="display-4 fw-bold @(percentage >= 75 ? "text-success" : percentage >= 50 ? "text-warning" : "text-danger")">
+                            @percentage%
+                        </h2>
+                        <p class="text-muted">Attendance Rate</p>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar @(percentage >= 75 ? "bg-success" : percentage >= 50 ? "bg-warning" : "bg-danger")"
+                                 style="width: @percentage%"></div>
+                        </div>
+                    </div>
+
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <h4 class="mb-0 text-success">@presentCount</h4>
+                            <small class="text-muted">Present</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="mb-0 text-danger">@(totalCount - presentCount)</h4>
+                            <small class="text-muted">Absent</small>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <h6 class="fw-semibold mb-3">Weekly Attendance</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        @for (int week = 1; week <= (totalCount > 0 ? totalCount : 6); week++)
+                        {
+                            var record = attendanceRecords.FirstOrDefault(a => a.WeekNumber == week);
+                            var isPresent = record?.Present ?? false;
+                            var hasRecord = record != null;
+
+                            <div class="text-center" style="width: 50px;">
+                                <div class="rounded-circle @(hasRecord ? (isPresent ? "bg-success" : "bg-danger") : "bg-secondary") text-white d-flex align-items-center justify-content-center"
+                                     style="width: 40px; height: 40px; margin: 0 auto;">
+                                    <small>@week</small>
+                                </div>
+                                <small class="text-muted">Week @week</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (enrolments == null || !enrolments.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-calendar-check fs-1 text-muted"></i>
+        <h5 class="text-muted mt-3">No enrolled courses</h5>
+        <p class="text-muted">You are not enrolled in any courses yet.</p>
+    </div>
+}
